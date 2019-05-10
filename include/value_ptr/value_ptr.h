@@ -4,7 +4,7 @@
 #include <memory>
 #include <type_traits>
 
-namespace support {
+namespace bsc {
 
 template <typename T>
 class value_ptr {
@@ -273,15 +273,15 @@ auto make_val(Args&&... args)
 {
   return value_ptr<T>(new T(std::forward<Args>(args)...));
 }
-}
+} // namespace bsc
 
 namespace std {
 
 template <typename T>
-struct hash<support::value_ptr<T>> {
-  std::size_t operator()(support::value_ptr<T> const& ptr) const
+struct hash<bsc::value_ptr<T>> {
+  std::size_t operator()(bsc::value_ptr<T> const& ptr) const
   {
-    return std::hash<typename support::value_ptr<T>::pointer>()(ptr.get());
+    return std::hash<typename bsc::value_ptr<T>::pointer>()(ptr.get());
   }
 };
-}
+} // namespace std

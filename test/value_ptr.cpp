@@ -8,7 +8,7 @@
 #include <unordered_set>
 #include <vector>
 
-using namespace support;
+using namespace bsc;
 
 // clang-format off
 struct rc {
