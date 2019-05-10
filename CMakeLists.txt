@@ -41,3 +41,7 @@ add_executable(valueptr-unit
 target_link_libraries(valueptr-unit
   valueptr
   CONAN_PKG::Catch2)
+
+add_test(
+  NAME unit
+  COMMAND $<TARGET_FILE:valueptr-unit>)
