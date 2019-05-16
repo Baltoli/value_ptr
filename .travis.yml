@@ -9,6 +9,8 @@ before_install:
 install:
   - sudo apt-get install -qq g++-8
   - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-8 90
+  - pip install conan
+  - conan user
 
 script:
   - mkdir build
