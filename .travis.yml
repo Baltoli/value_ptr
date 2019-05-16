@@ -13,9 +13,9 @@ matrix:
       env:
       - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
 
-    - os: linux
-      env:
-      - MATRIX_EVAL="CC=clang-6 && CXX=clang++-6"
+    # - os: linux
+    #   env:
+    #   - MATRIX_EVAL="CC=clang-6 && CXX=clang++-6"
 
 before_install:
   # - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
