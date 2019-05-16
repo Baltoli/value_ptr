@@ -24,7 +24,7 @@ matrix:
           packages:
             - clang-8
       env:
-      - MATRIX_EVAL="CC=clang-8.0 && CXX=clang-8.0"
+      - MATRIX_EVAL="CC=clang-8 && CXX=clang++-8"
 
 before_install:
   # - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
