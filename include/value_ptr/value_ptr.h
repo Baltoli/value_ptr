@@ -1,3 +1,14 @@
+/**
+ * Implementation of a smart pointer with value semantics.
+ *
+ * The implementation strategy taken by this library is to type-erase the
+ * polymorphic stored objects using a templated inner class that retains the
+ * "real" type of the stored object so that its copy constructor can be called.
+ *
+ * Users of this library don't need to worry about these details - the interface
+ * of the smart pointer is well-documented and hides implementation-specific
+ * details.
+ */
 #pragma once
 
 #include <functional>
@@ -6,9 +17,15 @@
 
 namespace bsc {
 
+/**
+ * Smart pointer class with value semantics.
+ */
 template <typename T>
 class value_ptr {
 public:
+  /**
+   * Typedef to the raw pointer type equivalent to this class.
+   */
   using pointer = T*;
 
   template <typename U>
@@ -55,12 +72,20 @@ private:
   };
 
 public:
+  /**
+   * Construct a value_ptr from an underlying raw pointer.
+   *
+   * This constructor takes ownership of the pointer passed to it.
+   */
   template <typename U>
   value_ptr(U* ptr)
       : impl_(new pmr_model(ptr))
   {
   }
 
+  /**
+   * Construct a value_ptr from another value_ptr.
+   */
   template <typename U,
       typename = std::enable_if_t<std::conjunction_v<
           std::is_convertible<typename value_ptr<U>::pointer, pointer>,
@@ -72,11 +97,18 @@ public:
     delete clone;
   }
 
+  /**
+   * Construct a value_ptr from nullptr.
+   */
   value_ptr(std::nullptr_t)
       : impl_(nullptr)
   {
   }
 
+  /**
+   * Default-constructing a value_ptr is equivalent to constructing with
+   * nullptr.
+   */
   value_ptr()
       : value_ptr(nullptr)
   {
@@ -106,6 +138,9 @@ public:
     return *this;
   }
 
+  /**
+   * Destroys the stored value.
+   */
   ~value_ptr()
   {
     if (impl_) {
