@@ -139,7 +139,7 @@ public:
   }
 
   /**
-   * Destroys the stored value.
+   * Destroys the stored value if it exists.
    */
   ~value_ptr()
   {
@@ -148,12 +148,34 @@ public:
     }
   }
 
+  /*
+   * Get the underlying raw pointer.
+   */
   T* get() const { return impl_->get(); }
+
+  /*
+   * Arrow operator returns the underlying raw pointer for chaining.
+   */
   T* operator->() const { return impl_->get(); }
+
+  /*
+   * Dereferences the underlying raw pointer.
+   */
   T& operator*() const { return **impl_; }
 
+  /*
+   * Conversion to bool (true if an underlying raw pointer is stored, false
+   * otherwise).
+   */
   explicit operator bool() const { return static_cast<bool>(impl_); }
 
+  /**
+   * Get the underlying raw pointer and release ownership.
+   *
+   * After calling, this object will be in a reset state (i.e. modelling a null
+   * pointer). The returned pointer is no longer owned by this object and must
+   * be managed by the caller.
+   */
   T* release()
   {
     auto ptr = impl_->release();
@@ -162,6 +184,12 @@ public:
     return ptr;
   }
 
+  /**
+   * Modify the underlying object.
+   *
+   * A call to reset while this object is managing an object will cause the
+   * managed object to be destroyed. After calling, this object will manage ptr.
+   */
   void reset(T* ptr = nullptr)
   {
     if (impl_) {
@@ -175,12 +203,20 @@ public:
     }
   }
 
+  /**
+   * Specialization to enable ADL swap.
+   */
   void swap(value_ptr<T>& other)
   {
     using std::swap;
     swap(impl_, other.impl_);
   }
 
+  /**
+   * Get a uniquely owning pointer to the managed object.
+   *
+   * After calling, this object will be reset as if release had been called.
+   */
   std::unique_ptr<T> to_unique() { return std::unique_ptr<T>(release()); }
 
 protected:
