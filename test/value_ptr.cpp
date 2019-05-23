@@ -263,7 +263,10 @@ TEST_CASE("value pointers can go into standard containers")
     m1.emplace(new int(42), 43);
     m1.emplace(new int(-1), 0);
 
-    for (auto const& [k, v] : m1) {
+    for (auto const& pair : m1) {
+      auto const& k = pair.first;
+      auto const& v = pair.second;
+
       REQUIRE(*k == v - 1);
     }
 
@@ -284,7 +287,10 @@ TEST_CASE("value pointers can go into standard containers")
     m1.emplace(new int(42), 43);
     m1.emplace(new int(-1), 0);
 
-    for (auto const& [k, v] : m1) {
+    for (auto const& pair : m1) {
+      auto const& k = pair.first;
+      auto const& v = pair.second;
+
       REQUIRE(*k == v - 1);
     }
 
