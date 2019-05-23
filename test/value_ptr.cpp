@@ -210,8 +210,9 @@ TEST_CASE("value pointers can go into standard containers")
 
     REQUIRE(v1.size() == 3);
 
-    auto contains
-        = [](int i) { return [i](auto const& vp) { return *vp == i; }; };
+    auto contains = [](int i) {
+      return [i](value_ptr<int> const& vp) { return *vp == i; };
+    };
 
     REQUIRE(std::find_if(v1.begin(), v1.end(), contains(34)) != v1.end());
     REQUIRE(std::find_if(v1.begin(), v1.end(), contains(78)) != v1.end());
@@ -238,8 +239,9 @@ TEST_CASE("value pointers can go into standard containers")
 
     REQUIRE(v1.size() == 3);
 
-    auto contains
-        = [](int i) { return [i](auto const& vp) { return *vp == i; }; };
+    auto contains = [](int i) {
+      return [i](value_ptr<int> const& vp) { return *vp == i; };
+    };
 
     REQUIRE(std::find_if(v1.begin(), v1.end(), contains(34)) != v1.end());
     REQUIRE(std::find_if(v1.begin(), v1.end(), contains(78)) != v1.end());

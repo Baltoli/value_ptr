@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
 project(libvalueptr VERSION 0.1 LANGUAGES CXX)
 
 add_compile_options(
-  "$<$<COMPILE_LANGUAGE:CXX>:-std=c++14>"
+  "$<$<COMPILE_LANGUAGE:CXX>:-std=c++11>"
 )
 
 if(NOT EXISTS "${CMAKE_BINARY_DIR}/conan.cmake")
