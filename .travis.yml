@@ -65,16 +65,50 @@ matrix:
       env:
         - MATRIX_EVAL="CC=clang-5.0 && CXX=clang++-5.0"
 
+    - os: linux
+      addons:
+        apt:
+          sources:
+          - ubuntu-toolchain-r-test
+          - llvm-toolchain-xenial-6
+          packages:
+          - clang-6.0
+          - g++-7
+      env:
+        - MATRIX_EVAL="CC=clang-6.0 && CXX=clang++-6.0"
+
+    - os: linux
+      addons:
+        apt:
+          sources:
+          - ubuntu-toolchain-r-test
+          - llvm-toolchain-xenial-7
+          packages:
+          - clang-7
+          - g++-7
+      env:
+        - MATRIX_EVAL="CC=clang-7 && CXX=clang++-7"
+
+    - os: linux
+      addons:
+        apt:
+          sources:
+          - ubuntu-toolchain-r-test
+          - llvm-toolchain-xenial-8
+          packages:
+          - clang-8
+          - g++-7
+      env:
+        - MATRIX_EVAL="CC=clang-8 && CXX=clang++-8"
+
 before_install:
   # - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
   # - sudo apt-get update -qq
   - eval "${MATRIX_EVAL}"
 
-install:
-  # - sudo apt-get install -qq g++-8
-  # - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-8 90
-  - pip install --user conan
-  - conan user
+# install:
+#   # - sudo apt-get install -qq g++-8
+#   # - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-8 90
 
 script:
   - mkdir build
