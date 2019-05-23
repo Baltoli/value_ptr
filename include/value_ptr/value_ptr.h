@@ -20,7 +20,7 @@ namespace bsc {
 /**
  * Smart pointer class with value semantics.
  */
-template <typename T>
+template <typename T, typename Deleter = std::default_delete<T>>
 class value_ptr {
 public:
   /**
@@ -28,7 +28,7 @@ public:
    */
   using pointer = T*;
 
-  template <typename U>
+  template <typename, typename>
   friend class value_ptr;
 
 private:
