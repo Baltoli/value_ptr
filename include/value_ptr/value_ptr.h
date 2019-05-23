@@ -79,7 +79,7 @@ public:
    */
   template <typename U>
   value_ptr(U* ptr)
-      : impl_(new pmr_model(ptr))
+      : impl_(new pmr_model<U>(ptr))
   {
   }
 
@@ -87,13 +87,13 @@ public:
    * Construct a value_ptr from another value_ptr.
    */
   template <typename U,
-      typename = std::enable_if_t<std::conjunction_v<
-          std::is_convertible<typename value_ptr<U>::pointer, pointer>,
-          std::negation<std::is_same<T, U>>>>>
+      typename = std::enable_if_t<
+          std::is_convertible<typename value_ptr<U>::pointer, pointer>::value
+          && !std::is_same<T, U>::value>>
   value_ptr(value_ptr<U> other)
   {
     auto clone = other.impl_->clone();
-    impl_ = new pmr_model(clone->release());
+    impl_ = new pmr_model<U>(clone->release());
     delete clone;
   }
 
@@ -197,7 +197,7 @@ public:
     }
 
     if (ptr) {
-      impl_ = new pmr_model(ptr);
+      impl_ = new pmr_model<T>(ptr);
     } else {
       impl_ = nullptr;
     }

@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
 project(libvalueptr VERSION 0.1 LANGUAGES CXX)
 
 add_compile_options(
-  "$<$<COMPILE_LANGUAGE:CXX>:-std=c++17>"
+  "$<$<COMPILE_LANGUAGE:CXX>:-std=c++14>"
 )
 
 if(NOT EXISTS "${CMAKE_BINARY_DIR}/conan.cmake")
@@ -68,7 +68,6 @@ endif(DOXYGEN_FOUND)
 
 option(VP_ASAN "Use sanitizers to build" OFF)
 if(VP_ASAN)
-  message(STATUS "Hid")
   set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-omit-frame-pointer -static-libasan -fsanitize=address")
   set (CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fno-omit-frame-pointer -static-libasan -fsanitize=address")
 endif()
