@@ -87,9 +87,9 @@ public:
    * Construct a value_ptr from another value_ptr.
    */
   template <typename U,
-      typename = std::enable_if_t<
+      typename = typename std::enable_if<
           std::is_convertible<typename value_ptr<U>::pointer, pointer>::value
-          && !std::is_same<T, U>::value>>
+          && !std::is_same<T, U>::value>::type>
   value_ptr(value_ptr<U> other)
   {
     auto clone = other.impl_->clone();
@@ -238,8 +238,8 @@ bool operator!=(value_ptr<T1> const& a, value_ptr<T2> const& b)
 template <typename T1, typename T2>
 bool operator<(value_ptr<T1> const& a, value_ptr<T2> const& b)
 {
-  using CT = std::common_type_t<typename value_ptr<T1>::pointer,
-      typename value_ptr<T2>::pointer>;
+  using CT = typename std::common_type<typename value_ptr<T1>::pointer,
+      typename value_ptr<T2>::pointer>::type;
   return std::less<CT>()(a.get(), b.get());
 }
 
@@ -340,7 +340,7 @@ void swap(value_ptr<T>& a, value_ptr<T>& b)
 }
 
 template <typename T, typename... Args>
-auto make_val(Args&&... args)
+auto make_val(Args&&... args) -> value_ptr<T>
 {
   return value_ptr<T>(new T(std::forward<Args>(args)...));
 }
