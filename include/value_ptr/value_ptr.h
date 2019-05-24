@@ -41,7 +41,7 @@ private:
     virtual T* release() = 0;
   };
 
-  template <typename D>
+  template <typename D, typename ModelDeleter>
   struct pmr_model : pmr_concept {
     pmr_model(D* ptr)
         : ptr_(ptr)
@@ -55,7 +55,10 @@ private:
       }
     }
 
-    pmr_model<D>* clone() override { return new pmr_model<D>(new D(*ptr_)); }
+    pmr_model<D, ModelDeleter>* clone() override
+    {
+      return new pmr_model<D, ModelDeleter>(new D(*ptr_));
+    }
 
     D* get() override { return ptr_; }
 
@@ -79,7 +82,7 @@ public:
    */
   template <typename U>
   explicit value_ptr(U* ptr)
-      : impl_(new pmr_model<U>(ptr))
+      : impl_(new pmr_model<U, Deleter>(ptr))
   {
   }
 
@@ -93,7 +96,7 @@ public:
   value_ptr(value_ptr<U> other)
   {
     auto clone = other.impl_->clone();
-    impl_ = new pmr_model<U>(clone->release());
+    impl_ = new pmr_model<U, Deleter>(clone->release());
     delete clone;
   }
 
@@ -197,7 +200,7 @@ public:
     }
 
     if (ptr) {
-      impl_ = new pmr_model<T>(ptr);
+      impl_ = new pmr_model<T, Deleter>(ptr);
     } else {
       impl_ = nullptr;
     }
