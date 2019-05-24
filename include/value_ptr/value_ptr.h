@@ -132,8 +132,10 @@ public:
   {
   }
 
+  // TODO: requirements on the copy-construtibility of deleters
   value_ptr(value_ptr<T> const& other)
-      : impl_(other.impl_ ? other.impl_->clone() : nullptr)
+      : deleter_(other.deleter_)
+      , impl_(other.impl_ ? other.impl_->clone() : nullptr)
   {
   }
 
@@ -144,8 +146,10 @@ public:
     return *this;
   }
 
+  // TODO: requirements on the move-construtibility of deleters
   value_ptr(value_ptr<T>&& other)
-      : impl_(std::move(other.impl_))
+      : deleter_(std::move(other.deleter_))
+      , impl_(std::move(other.impl_))
   {
     other.impl_ = nullptr;
   }
@@ -186,6 +190,12 @@ public:
    * otherwise).
    */
   explicit operator bool() const { return static_cast<bool>(impl_); }
+
+  /*
+   * Get the deleter object responsible for deleting managed objects.
+   */
+  Deleter& get_deleter() { return deleter_; }
+  Deleter const& get_deleter() const { return deleter_; }
 
   /**
    * Get the underlying raw pointer and release ownership.
@@ -228,6 +238,7 @@ public:
   {
     using std::swap;
     swap(impl_, other.impl_);
+    swap(deleter_, other.deleter_);
   }
 
   /**
