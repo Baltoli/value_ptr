@@ -78,7 +78,7 @@ public:
    * This constructor takes ownership of the pointer passed to it.
    */
   template <typename U>
-  value_ptr(U* ptr)
+  explicit value_ptr(U* ptr)
       : impl_(new pmr_model<U>(ptr))
   {
   }
