@@ -246,7 +246,10 @@ public:
    *
    * After calling, this object will be reset as if release had been called.
    */
-  std::unique_ptr<T> to_unique() { return std::unique_ptr<T>(release()); }
+  std::unique_ptr<T> to_unique()
+  {
+    return std::unique_ptr<T, Deleter>(release(), deleter_);
+  }
 
 protected:
   pmr_concept* impl_;
