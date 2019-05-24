@@ -255,118 +255,118 @@ protected:
   pmr_concept* impl_;
 };
 
-template <typename T1, typename T2>
-bool operator==(value_ptr<T1> const& a, value_ptr<T2> const& b)
+template <typename T1, typename T2, typename D1, typename D2>
+bool operator==(value_ptr<T1, D1> const& a, value_ptr<T2, D2> const& b)
 {
   return a.get() == b.get();
 }
 
-template <typename T1, typename T2>
-bool operator!=(value_ptr<T1> const& a, value_ptr<T2> const& b)
+template <typename T1, typename T2, typename D1, typename D2>
+bool operator!=(value_ptr<T1, D1> const& a, value_ptr<T2, D2> const& b)
 {
   return a.get() != b.get();
 }
 
-template <typename T1, typename T2>
-bool operator<(value_ptr<T1> const& a, value_ptr<T2> const& b)
+template <typename T1, typename T2, typename D1, typename D2>
+bool operator<(value_ptr<T1, D1> const& a, value_ptr<T2, D2> const& b)
 {
-  using CT = typename std::common_type<typename value_ptr<T1>::pointer,
-      typename value_ptr<T2>::pointer>::type;
+  using CT = typename std::common_type<typename value_ptr<T1, D1>::pointer,
+      typename value_ptr<T2, D2>::pointer>::type;
   return std::less<CT>()(a.get(), b.get());
 }
 
-template <typename T1, typename T2>
-bool operator<=(value_ptr<T1> const& a, value_ptr<T2> const& b)
+template <typename T1, typename T2, typename D1, typename D2>
+bool operator<=(value_ptr<T1, D1> const& a, value_ptr<T2, D2> const& b)
 {
   return !(b < a);
 }
 
-template <typename T1, typename T2>
-bool operator>(value_ptr<T1> const& a, value_ptr<T2> const& b)
+template <typename T1, typename T2, typename D1, typename D2>
+bool operator>(value_ptr<T1, D1> const& a, value_ptr<T2, D2> const& b)
 {
   return b < a;
 }
 
-template <typename T1, typename T2>
-bool operator>=(value_ptr<T1> const& a, value_ptr<T2> const& b)
+template <typename T1, typename T2, typename D1, typename D2>
+bool operator>=(value_ptr<T1, D1> const& a, value_ptr<T2, D2> const& b)
 {
   return !(a < b);
 }
 
-template <typename T>
-bool operator==(value_ptr<T> const& a, std::nullptr_t)
+template <typename T, typename D>
+bool operator==(value_ptr<T, D> const& a, std::nullptr_t)
 {
   return !a;
 }
 
-template <typename T>
-bool operator==(std::nullptr_t, value_ptr<T> const& a)
+template <typename T, typename D>
+bool operator==(std::nullptr_t, value_ptr<T, D> const& a)
 {
   return !a;
 }
 
-template <typename T>
-bool operator!=(value_ptr<T> const& a, std::nullptr_t)
+template <typename T, typename D>
+bool operator!=(value_ptr<T, D> const& a, std::nullptr_t)
 {
   return (bool)a;
 }
 
-template <typename T>
-bool operator!=(std::nullptr_t, value_ptr<T> const& a)
+template <typename T, typename D>
+bool operator!=(std::nullptr_t, value_ptr<T, D> const& a)
 {
   return (bool)a;
 }
 
-template <typename T>
-bool operator<(value_ptr<T> const& a, std::nullptr_t)
+template <typename T, typename D>
+bool operator<(value_ptr<T, D> const& a, std::nullptr_t)
 {
-  return std::less<typename value_ptr<T>::pointer>()(a.get(), nullptr);
+  return std::less<typename value_ptr<T, D>::pointer>()(a.get(), nullptr);
 }
 
-template <typename T>
-bool operator<(std::nullptr_t, value_ptr<T> const& a)
+template <typename T, typename D>
+bool operator<(std::nullptr_t, value_ptr<T, D> const& a)
 {
-  return std::less<typename value_ptr<T>::pointer>()(nullptr, a.get());
+  return std::less<typename value_ptr<T, D>::pointer>()(nullptr, a.get());
 }
 
-template <typename T>
-bool operator<=(value_ptr<T> const& a, std::nullptr_t)
+template <typename T, typename D>
+bool operator<=(value_ptr<T, D> const& a, std::nullptr_t)
 {
   return !(nullptr < a);
 }
 
-template <typename T>
-bool operator<=(std::nullptr_t, value_ptr<T> const& a)
+template <typename T, typename D>
+bool operator<=(std::nullptr_t, value_ptr<T, D> const& a)
 {
   return !(a < nullptr);
 }
 
-template <typename T>
-bool operator>(value_ptr<T> const& a, std::nullptr_t)
+template <typename T, typename D>
+bool operator>(value_ptr<T, D> const& a, std::nullptr_t)
 {
   return nullptr < a;
 }
 
-template <typename T>
-bool operator>(std::nullptr_t, value_ptr<T> const& a)
+template <typename T, typename D>
+bool operator>(std::nullptr_t, value_ptr<T, D> const& a)
 {
   return a < nullptr;
 }
 
-template <typename T>
-bool operator>=(value_ptr<T> const& a, std::nullptr_t)
+template <typename T, typename D>
+bool operator>=(value_ptr<T, D> const& a, std::nullptr_t)
 {
   return !(a < nullptr);
 }
 
-template <typename T>
-bool operator>=(std::nullptr_t, value_ptr<T> const& a)
+template <typename T, typename D>
+bool operator>=(std::nullptr_t, value_ptr<T, D> const& a)
 {
   return !(nullptr < a);
 }
 
-template <typename T>
-void swap(value_ptr<T>& a, value_ptr<T>& b)
+template <typename T, typename D>
+void swap(value_ptr<T, D>& a, value_ptr<T, D>& b)
 {
   a.swap(b);
 }
@@ -380,11 +380,11 @@ auto make_val(Args&&... args) -> value_ptr<T>
 
 namespace std {
 
-template <typename T>
-struct hash<bsc::value_ptr<T>> {
-  std::size_t operator()(bsc::value_ptr<T> const& ptr) const
+template <typename T, typename D>
+struct hash<bsc::value_ptr<T, D>> {
+  std::size_t operator()(bsc::value_ptr<T, D> const& ptr) const
   {
-    return std::hash<typename bsc::value_ptr<T>::pointer>()(ptr.get());
+    return std::hash<typename bsc::value_ptr<T, D>::pointer>()(ptr.get());
   }
 };
 } // namespace std
