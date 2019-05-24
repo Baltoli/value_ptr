@@ -261,9 +261,9 @@ TEST_CASE("value pointers can go into standard containers")
   SECTION("maps")
   {
     auto m1 = std::map<value_ptr<int>, int>{};
-    m1.emplace(new int(4), 5);
-    m1.emplace(new int(42), 43);
-    m1.emplace(new int(-1), 0);
+    m1.emplace(value_ptr<int>(new int(4)), 5);
+    m1.emplace(value_ptr<int>(new int(42)), 43);
+    m1.emplace(value_ptr<int>(new int(-1)), 0);
 
     for (auto const& pair : m1) {
       auto const& k = pair.first;
@@ -275,8 +275,8 @@ TEST_CASE("value pointers can go into standard containers")
     auto count = 0;
     {
       auto m2 = std::map<value_ptr<rc>, int>{};
-      m2.emplace(new rc(count), 0);
-      m2.emplace(new rc(count), 1);
+      m2.emplace(value_ptr<rc>(new rc(count)), 0);
+      m2.emplace(value_ptr<rc>(new rc(count)), 1);
       REQUIRE(count == 2);
     }
     REQUIRE(count == 0);
@@ -285,9 +285,9 @@ TEST_CASE("value pointers can go into standard containers")
   SECTION("unordered maps")
   {
     auto m1 = std::unordered_map<value_ptr<int>, int>{};
-    m1.emplace(new int(4), 5);
-    m1.emplace(new int(42), 43);
-    m1.emplace(new int(-1), 0);
+    m1.emplace(value_ptr<int>(new int(4)), 5);
+    m1.emplace(value_ptr<int>(new int(42)), 43);
+    m1.emplace(value_ptr<int>(new int(-1)), 0);
 
     for (auto const& pair : m1) {
       auto const& k = pair.first;
@@ -299,8 +299,8 @@ TEST_CASE("value pointers can go into standard containers")
     auto count = 0;
     {
       auto m2 = std::map<value_ptr<rc>, int>{};
-      m2.emplace(new rc(count), 0);
-      m2.emplace(new rc(count), 1);
+      m2.emplace(value_ptr<rc>(new rc(count)), 0);
+      m2.emplace(value_ptr<rc>(new rc(count)), 1);
       REQUIRE(count == 2);
     }
     REQUIRE(count == 0);
