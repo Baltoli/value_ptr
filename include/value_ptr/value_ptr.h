@@ -84,9 +84,13 @@ public:
    *
    * This constructor takes ownership of the pointer passed to it.
    */
-  template <typename U>
+  template <typename U,
+      typename
+      = typename std::enable_if<std::is_default_constructible<Deleter>::value
+          && !std::is_pointer<Deleter>::value>::type>
   explicit value_ptr(U* ptr)
-      : impl_(new pmr_model<U>(ptr, deleter_))
+      : deleter_()
+      , impl_(new pmr_model<U>(ptr, deleter_))
   {
   }
 
@@ -107,8 +111,12 @@ public:
   /**
    * Construct a value_ptr from nullptr.
    */
+  template <typename
+      = typename std::enable_if<std::is_default_constructible<Deleter>::value
+          && !std::is_pointer<Deleter>::value>::type>
   value_ptr(std::nullptr_t)
-      : impl_(nullptr)
+      : deleter_()
+      , impl_(nullptr)
   {
   }
 
@@ -116,6 +124,9 @@ public:
    * Default-constructing a value_ptr is equivalent to constructing with
    * nullptr.
    */
+  template <typename
+      = typename std::enable_if<std::is_default_constructible<Deleter>::value
+          && !std::is_pointer<Deleter>::value>::type>
   value_ptr()
       : value_ptr(nullptr)
   {
