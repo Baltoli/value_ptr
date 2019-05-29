@@ -97,11 +97,12 @@ public:
   /**
    * Construct a value_ptr from another value_ptr.
    */
-  template <typename U,
+  template <typename U, typename D,
       typename = typename std::enable_if<
-          std::is_convertible<typename value_ptr<U>::pointer, pointer>::value
-          && !std::is_same<T, U>::value>::type>
-  value_ptr(value_ptr<U> other)
+          std::is_convertible<typename value_ptr<U, D>::pointer, pointer>::value
+          && !std::is_same<T, U>::value
+          && std::is_assignable<Deleter, D>::value>::type>
+  value_ptr(value_ptr<U, D> const& other)
   {
     auto clone = other.impl_->clone();
     impl_ = new pmr_model<U>(clone->release(), deleter_);
@@ -132,29 +133,27 @@ public:
   {
   }
 
-  // TODO: requirements on the copy-construtibility of deleters
-  value_ptr(value_ptr<T> const& other)
+  value_ptr(value_ptr const& other)
       : deleter_(other.deleter_)
       , impl_(other.impl_ ? other.impl_->clone() : nullptr)
   {
   }
 
-  value_ptr<T, Deleter>& operator=(value_ptr<T, Deleter> other)
+  value_ptr& operator=(value_ptr other)
   {
     using std::swap;
     swap(*this, other);
     return *this;
   }
 
-  // TODO: requirements on the move-construtibility of deleters
-  value_ptr(value_ptr<T, Deleter>&& other)
+  value_ptr(value_ptr&& other)
       : deleter_(std::move(other.deleter_))
       , impl_(std::move(other.impl_))
   {
     other.impl_ = nullptr;
   }
 
-  value_ptr<T, Deleter>& operator=(std::nullptr_t)
+  value_ptr& operator=(std::nullptr_t)
   {
     reset();
     return *this;
@@ -234,7 +233,7 @@ public:
   /**
    * Specialization to enable ADL swap.
    */
-  void swap(value_ptr<T, Deleter>& other)
+  void swap(value_ptr& other)
   {
     using std::swap;
     swap(impl_, other.impl_);
