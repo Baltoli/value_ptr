@@ -14,6 +14,7 @@ using namespace bsc;
 struct rc {
   rc(int& c) : c_(c) { ++c_; }
   rc(rc const& o) : rc(o.c_) {}
+  rc(rc&&) = delete;
   ~rc() { --c_; }
 
   int& c_;
