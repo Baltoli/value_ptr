@@ -139,7 +139,7 @@ public:
   {
   }
 
-  value_ptr<T>& operator=(value_ptr<T> other)
+  value_ptr<T, Deleter>& operator=(value_ptr<T, Deleter> other)
   {
     using std::swap;
     swap(*this, other);
@@ -147,14 +147,14 @@ public:
   }
 
   // TODO: requirements on the move-construtibility of deleters
-  value_ptr(value_ptr<T>&& other)
+  value_ptr(value_ptr<T, Deleter>&& other)
       : deleter_(std::move(other.deleter_))
       , impl_(std::move(other.impl_))
   {
     other.impl_ = nullptr;
   }
 
-  value_ptr<T>& operator=(std::nullptr_t)
+  value_ptr<T, Deleter>& operator=(std::nullptr_t)
   {
     reset();
     return *this;
@@ -234,7 +234,7 @@ public:
   /**
    * Specialization to enable ADL swap.
    */
-  void swap(value_ptr<T>& other)
+  void swap(value_ptr<T, Deleter>& other)
   {
     using std::swap;
     swap(impl_, other.impl_);
@@ -246,7 +246,7 @@ public:
    *
    * After calling, this object will be reset as if release had been called.
    */
-  std::unique_ptr<T> to_unique()
+  std::unique_ptr<T, Deleter> to_unique()
   {
     return std::unique_ptr<T, Deleter>(release(), deleter_);
   }
