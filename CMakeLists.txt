@@ -7,7 +7,6 @@ add_compile_options(
 )
 
 include(GNUInstallDirs)
-enable_testing()
 
 add_library(valueptr INTERFACE)
 
@@ -22,17 +21,6 @@ install(TARGETS valueptr EXPORT ValuePtrConfig
 install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 install(EXPORT ValuePtrConfig DESTINATION share/ValuePtr/cmake)
-
-add_executable(valueptr-unit
-  test/value_ptr.cpp
-  test/main.cpp)
-
-target_link_libraries(valueptr-unit
-  valueptr)
-
-add_test(
-  NAME unit
-  COMMAND $<TARGET_FILE:valueptr-unit>)
 
 option(BUILD_DOC "Build documentation" OFF)
 find_package(Doxygen)
@@ -59,3 +47,6 @@ if(VP_ASAN)
   set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-omit-frame-pointer -static-libasan -fsanitize=address")
   set (CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fno-omit-frame-pointer -static-libasan -fsanitize=address")
 endif()
+
+enable_testing()
+add_subdirectory(test)
