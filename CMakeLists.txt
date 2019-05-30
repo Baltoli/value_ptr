@@ -10,8 +10,9 @@ include(GNUInstallDirs)
 
 add_library(valueptr INTERFACE)
 
+set(VP_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include")
 target_include_directories(valueptr INTERFACE
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<BUILD_INTERFACE:${VP_INCLUDE_DIR}>
   $<INSTALL_INTERFACE:include>)
 
 install(TARGETS valueptr EXPORT ValuePtrConfig
