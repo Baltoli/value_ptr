@@ -2,12 +2,16 @@ set(TESTS
   basic.cpp
 )
 
-foreach(test ${TESTS})
-  set(TEST_CXX_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${test})
-
-  configure_file(run.sh
-    ${CMAKE_CURRENT_BINARY_DIR}/${test}.sh)
-
-  add_test(${test}.fail
-    sh ${CMAKE_CURRENT_BINARY_DIR}/${test}.sh)
+foreach(file ${TESTS})
+  configure_file(${file} ${CMAKE_CURRENT_BINARY_DIR}/${file} COPYONLY)
 endforeach()
+
+list(TRANSFORM TESTS PREPEND ${CMAKE_CURRENT_BINARY_DIR}/)
+string(REPLACE ";" " " TEST_LIST_STR "${TESTS}")
+
+configure_file(run.sh
+  ${CMAKE_CURRENT_BINARY_DIR}/compile-fails.sh
+  @ONLY)
+
+add_test(compile-fails
+  sh ${CMAKE_CURRENT_BINARY_DIR}/compile-fails.sh)
