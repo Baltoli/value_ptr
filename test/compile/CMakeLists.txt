@@ -7,7 +7,7 @@ foreach(file ${TESTS})
 endforeach()
 
 list(TRANSFORM TESTS PREPEND ${CMAKE_CURRENT_BINARY_DIR}/)
-string(REPLACE ";" " " TEST_LIST_STR "${TESTS}")
+string(REPLACE ";" "\n" TEST_LIST_STR "${TESTS}")
 
 configure_file(run.sh
   ${CMAKE_CURRENT_BINARY_DIR}/compile-fails.sh
