@@ -14,4 +14,4 @@ configure_file(run.sh
   @ONLY)
 
 add_test(compile-fails
-  sh ${CMAKE_CURRENT_BINARY_DIR}/compile-fails.sh)
+  bash ${CMAKE_CURRENT_BINARY_DIR}/compile-fails.sh)

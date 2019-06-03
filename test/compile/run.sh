@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 TEST_FILES=(@TEST_LIST_STR@)
 
