@@ -116,6 +116,9 @@ matrix:
 before_install:
   - eval "${MATRIX_EVAL}"
 
+before_script:
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew upgrade cmake; fi
+
 script:
   - mkdir build
   - cd build

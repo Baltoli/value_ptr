@@ -1,14 +1,15 @@
-#!/bin/sh
+#!/bin/bash
 
-TEST_FILE=@TEST_CXX_FILE@
+TEST_FILES=(@TEST_LIST_STR@)
+
 CXX=@CMAKE_CXX_COMPILER@
 INCLUDE=@VP_INCLUDE_DIR@
 
-$CXX -c "-I$INCLUDE" "$TEST_FILE"
-STATUS=$?
+for test in "${TEST_FILES[@]}"; do
+  $CXX -c "-I$INCLUDE" "$test" 2>/dev/null
+  STATUS=$?
 
-if [ $STATUS -eq 0 ]; then
-  exit 1
-else
-  exit 0
-fi
+  if [ $STATUS -eq 0 ]; then
+    exit 1
+  fi
+done
