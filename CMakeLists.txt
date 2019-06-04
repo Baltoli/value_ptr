@@ -4,6 +4,10 @@ project(libvalueptr VERSION 0.1 LANGUAGES CXX)
 
 add_compile_options(
   "$<$<COMPILE_LANGUAGE:CXX>:-std=c++11>"
+  "-Wall" 
+  "-Wextra"
+  "-pedantic"
+  "-Werror"
 )
 
 include(GNUInstallDirs)

@@ -27,6 +27,7 @@ public:
    * Typedef to the raw pointer type equivalent to this class.
    */
   using pointer = T*;
+  using element_type = T;
 
   template <typename U>
   friend class value_ptr;
@@ -36,32 +37,37 @@ private:
     virtual ~pmr_concept() {}
 
     virtual pmr_concept* clone() = 0;
-    virtual T* get() = 0;
-    virtual T& operator*() = 0;
-    virtual T* release() = 0;
+    virtual T* get() noexcept = 0;
+    virtual T& operator*() noexcept = 0;
+    virtual T* release() noexcept = 0;
   };
 
   template <typename D>
   struct pmr_model : pmr_concept {
-    pmr_model(D* ptr)
+    pmr_model(D* ptr) noexcept
         : ptr_(ptr)
     {
     }
 
-    ~pmr_model()
+    ~pmr_model() noexcept(std::is_nothrow_destructible<D>::value)
     {
       if (ptr_) {
         delete ptr_;
       }
     }
 
-    pmr_model<D>* clone() override { return new pmr_model<D>(new D(*ptr_)); }
+    // noexcept only if the underlying type can be copied without throwing.
+    pmr_model<D>* clone() noexcept(
+        std::is_nothrow_copy_constructible<D>::value) override
+    {
+      return new pmr_model<D>(new D(*ptr_));
+    }
 
-    D* get() override { return ptr_; }
+    D* get() noexcept override { return ptr_; }
 
-    D& operator*() override { return *ptr_; }
+    D& operator*() noexcept override { return *ptr_; }
 
-    D* release() override
+    D* release() noexcept override
     {
       auto ptr = ptr_;
       ptr_ = nullptr;
@@ -77,8 +83,10 @@ public:
    *
    * This constructor takes ownership of the pointer passed to it.
    */
-  template <typename U>
-  explicit value_ptr(U* ptr)
+  template <typename U,
+      typename
+      = typename std::enable_if<std::is_convertible<U*, pointer>::value>>
+  explicit value_ptr(U* ptr) noexcept
       : impl_(new pmr_model<U>(ptr))
   {
   }
@@ -90,7 +98,8 @@ public:
       typename = typename std::enable_if<
           std::is_convertible<typename value_ptr<U>::pointer, pointer>::value
           && !std::is_same<T, U>::value>::type>
-  value_ptr(value_ptr<U> other)
+  value_ptr(value_ptr<U> other) noexcept(
+      std::is_nothrow_copy_constructible<U>::value)
   {
     auto clone = other.impl_->clone();
     impl_ = new pmr_model<U>(clone->release());
@@ -100,7 +109,7 @@ public:
   /**
    * Construct a value_ptr from nullptr.
    */
-  value_ptr(std::nullptr_t)
+  constexpr value_ptr(std::nullptr_t) noexcept
       : impl_(nullptr)
   {
   }
@@ -109,30 +118,33 @@ public:
    * Default-constructing a value_ptr is equivalent to constructing with
    * nullptr.
    */
-  value_ptr()
+  constexpr value_ptr() noexcept
       : value_ptr(nullptr)
   {
   }
 
-  value_ptr(value_ptr<T> const& other)
+  value_ptr(value_ptr<T> const& other) noexcept(
+      std::is_nothrow_copy_constructible<T>::value)
       : impl_(other.impl_ ? other.impl_->clone() : nullptr)
   {
   }
 
-  value_ptr<T>& operator=(value_ptr<T> other)
+  value_ptr<T>& operator=(value_ptr<T> other) noexcept(
+      std::is_nothrow_copy_constructible<T>::value)
   {
     using std::swap;
     swap(*this, other);
     return *this;
   }
 
-  value_ptr(value_ptr<T>&& other)
+  value_ptr(value_ptr<T>&& other) noexcept
       : impl_(std::move(other.impl_))
   {
     other.impl_ = nullptr;
   }
 
-  value_ptr<T>& operator=(std::nullptr_t)
+  value_ptr<T>& operator=(std::nullptr_t) noexcept(
+      noexcept(std::declval<value_ptr<T>>().reset()))
   {
     reset();
     return *this;
@@ -141,7 +153,7 @@ public:
   /**
    * Destroys the stored value if it exists.
    */
-  ~value_ptr()
+  ~value_ptr() noexcept(std::is_nothrow_destructible<T>::value)
   {
     if (impl_) {
       delete impl_;
@@ -151,23 +163,23 @@ public:
   /*
    * Get the underlying raw pointer.
    */
-  T* get() const { return impl_->get(); }
+  T* get() const noexcept { return impl_->get(); }
 
   /*
    * Arrow operator returns the underlying raw pointer for chaining.
    */
-  T* operator->() const { return impl_->get(); }
+  T* operator->() const noexcept { return impl_->get(); }
 
   /*
    * Dereferences the underlying raw pointer.
    */
-  T& operator*() const { return **impl_; }
+  T& operator*() const noexcept { return **impl_; }
 
   /*
    * Conversion to bool (true if an underlying raw pointer is stored, false
    * otherwise).
    */
-  explicit operator bool() const { return static_cast<bool>(impl_); }
+  explicit operator bool() const noexcept { return static_cast<bool>(impl_); }
 
   /**
    * Get the underlying raw pointer and release ownership.
@@ -176,7 +188,7 @@ public:
    * pointer). The returned pointer is no longer owned by this object and must
    * be managed by the caller.
    */
-  T* release()
+  T* release() noexcept
   {
     auto ptr = impl_->release();
     delete impl_;
@@ -190,7 +202,8 @@ public:
    * A call to reset while this object is managing an object will cause the
    * managed object to be destroyed. After calling, this object will manage ptr.
    */
-  void reset(T* ptr = nullptr)
+  void reset(T* ptr = nullptr) noexcept(std::is_nothrow_destructible<T>::value&&
+          std::is_nothrow_copy_constructible<T>::value)
   {
     if (impl_) {
       delete impl_;
@@ -206,7 +219,7 @@ public:
   /**
    * Specialization to enable ADL swap.
    */
-  void swap(value_ptr<T>& other)
+  void swap(value_ptr<T>& other) noexcept
   {
     using std::swap;
     swap(impl_, other.impl_);
@@ -217,26 +230,29 @@ public:
    *
    * After calling, this object will be reset as if release had been called.
    */
-  std::unique_ptr<T> to_unique() { return std::unique_ptr<T>(release()); }
+  std::unique_ptr<T> to_unique() noexcept
+  {
+    return std::unique_ptr<T>(release());
+  }
 
 protected:
   pmr_concept* impl_;
 };
 
 template <typename T1, typename T2>
-bool operator==(value_ptr<T1> const& a, value_ptr<T2> const& b)
+bool operator==(value_ptr<T1> const& a, value_ptr<T2> const& b) noexcept
 {
   return a.get() == b.get();
 }
 
 template <typename T1, typename T2>
-bool operator!=(value_ptr<T1> const& a, value_ptr<T2> const& b)
+bool operator!=(value_ptr<T1> const& a, value_ptr<T2> const& b) noexcept
 {
   return a.get() != b.get();
 }
 
 template <typename T1, typename T2>
-bool operator<(value_ptr<T1> const& a, value_ptr<T2> const& b)
+bool operator<(value_ptr<T1> const& a, value_ptr<T2> const& b) noexcept
 {
   using CT = typename std::common_type<typename value_ptr<T1>::pointer,
       typename value_ptr<T2>::pointer>::type;
@@ -244,97 +260,97 @@ bool operator<(value_ptr<T1> const& a, value_ptr<T2> const& b)
 }
 
 template <typename T1, typename T2>
-bool operator<=(value_ptr<T1> const& a, value_ptr<T2> const& b)
+bool operator<=(value_ptr<T1> const& a, value_ptr<T2> const& b) noexcept
 {
   return !(b < a);
 }
 
 template <typename T1, typename T2>
-bool operator>(value_ptr<T1> const& a, value_ptr<T2> const& b)
+bool operator>(value_ptr<T1> const& a, value_ptr<T2> const& b) noexcept
 {
   return b < a;
 }
 
 template <typename T1, typename T2>
-bool operator>=(value_ptr<T1> const& a, value_ptr<T2> const& b)
+bool operator>=(value_ptr<T1> const& a, value_ptr<T2> const& b) noexcept
 {
   return !(a < b);
 }
 
 template <typename T>
-bool operator==(value_ptr<T> const& a, std::nullptr_t)
+bool operator==(value_ptr<T> const& a, std::nullptr_t) noexcept
 {
   return !a;
 }
 
 template <typename T>
-bool operator==(std::nullptr_t, value_ptr<T> const& a)
+bool operator==(std::nullptr_t, value_ptr<T> const& a) noexcept
 {
   return !a;
 }
 
 template <typename T>
-bool operator!=(value_ptr<T> const& a, std::nullptr_t)
+bool operator!=(value_ptr<T> const& a, std::nullptr_t) noexcept
 {
   return (bool)a;
 }
 
 template <typename T>
-bool operator!=(std::nullptr_t, value_ptr<T> const& a)
+bool operator!=(std::nullptr_t, value_ptr<T> const& a) noexcept
 {
   return (bool)a;
 }
 
 template <typename T>
-bool operator<(value_ptr<T> const& a, std::nullptr_t)
+bool operator<(value_ptr<T> const& a, std::nullptr_t) noexcept
 {
   return std::less<typename value_ptr<T>::pointer>()(a.get(), nullptr);
 }
 
 template <typename T>
-bool operator<(std::nullptr_t, value_ptr<T> const& a)
+bool operator<(std::nullptr_t, value_ptr<T> const& a) noexcept
 {
   return std::less<typename value_ptr<T>::pointer>()(nullptr, a.get());
 }
 
 template <typename T>
-bool operator<=(value_ptr<T> const& a, std::nullptr_t)
+bool operator<=(value_ptr<T> const& a, std::nullptr_t) noexcept
 {
   return !(nullptr < a);
 }
 
 template <typename T>
-bool operator<=(std::nullptr_t, value_ptr<T> const& a)
+bool operator<=(std::nullptr_t, value_ptr<T> const& a) noexcept
 {
   return !(a < nullptr);
 }
 
 template <typename T>
-bool operator>(value_ptr<T> const& a, std::nullptr_t)
+bool operator>(value_ptr<T> const& a, std::nullptr_t) noexcept
 {
   return nullptr < a;
 }
 
 template <typename T>
-bool operator>(std::nullptr_t, value_ptr<T> const& a)
+bool operator>(std::nullptr_t, value_ptr<T> const& a) noexcept
 {
   return a < nullptr;
 }
 
 template <typename T>
-bool operator>=(value_ptr<T> const& a, std::nullptr_t)
+bool operator>=(value_ptr<T> const& a, std::nullptr_t) noexcept
 {
   return !(a < nullptr);
 }
 
 template <typename T>
-bool operator>=(std::nullptr_t, value_ptr<T> const& a)
+bool operator>=(std::nullptr_t, value_ptr<T> const& a) noexcept
 {
   return !(nullptr < a);
 }
 
 template <typename T>
-void swap(value_ptr<T>& a, value_ptr<T>& b)
+void swap(value_ptr<T>& a, value_ptr<T>& b) noexcept
 {
   a.swap(b);
 }
