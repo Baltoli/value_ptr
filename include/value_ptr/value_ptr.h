@@ -77,7 +77,9 @@ public:
    *
    * This constructor takes ownership of the pointer passed to it.
    */
-  template <typename U>
+  template <typename U,
+      typename
+      = typename std::enable_if<std::is_convertible<U*, pointer>::value>>
   explicit value_ptr(U* ptr)
       : impl_(new pmr_model<U>(ptr))
   {
