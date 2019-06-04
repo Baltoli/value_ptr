@@ -27,6 +27,7 @@ public:
    * Typedef to the raw pointer type equivalent to this class.
    */
   using pointer = T*;
+  using element_type = T;
 
   template <typename U>
   friend class value_ptr;
