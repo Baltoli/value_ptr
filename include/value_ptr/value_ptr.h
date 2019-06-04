@@ -37,32 +37,37 @@ private:
     virtual ~pmr_concept() {}
 
     virtual pmr_concept* clone() = 0;
-    virtual T* get() = 0;
-    virtual T& operator*() = 0;
-    virtual T* release() = 0;
+    virtual T* get() noexcept = 0;
+    virtual T& operator*() noexcept = 0;
+    virtual T* release() noexcept = 0;
   };
 
   template <typename D>
   struct pmr_model : pmr_concept {
-    pmr_model(D* ptr)
+    constexpr pmr_model(D* ptr) noexcept
         : ptr_(ptr)
     {
     }
 
-    ~pmr_model()
+    ~pmr_model() noexcept(std::is_nothrow_destructible<D>::value)
     {
       if (ptr_) {
         delete ptr_;
       }
     }
 
-    pmr_model<D>* clone() override { return new pmr_model<D>(new D(*ptr_)); }
+    // noexcept only if the underlying type can be copied without throwing.
+    pmr_model<D>* clone() noexcept(
+        std::is_nothrow_copy_constructible<D>::value) override
+    {
+      return new pmr_model<D>(new D(*ptr_));
+    }
 
-    D* get() override { return ptr_; }
+    D* get() noexcept override { return ptr_; }
 
-    D& operator*() override { return *ptr_; }
+    D& operator*() noexcept override { return *ptr_; }
 
-    D* release() override
+    D* release() noexcept override
     {
       auto ptr = ptr_;
       ptr_ = nullptr;
