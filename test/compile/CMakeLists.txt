@@ -1,5 +1,6 @@
 set(TESTS
   basic.cpp
+  non_copy.cpp
 )
 
 foreach(file ${TESTS})

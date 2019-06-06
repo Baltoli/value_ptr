@@ -42,7 +42,9 @@ private:
     virtual T* release() noexcept = 0;
   };
 
-  template <typename D>
+  template <typename D,
+      typename =
+          typename std::enable_if<std::is_copy_constructible<D>::value>::type>
   struct pmr_model : pmr_concept {
     pmr_model(D* ptr) noexcept
         : ptr_(ptr)
