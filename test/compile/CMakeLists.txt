@@ -1,6 +1,7 @@
 set(TESTS
   basic.cpp
   non_copy.cpp
+  non_copy_poly.cpp
 )
 
 foreach(file ${TESTS})
