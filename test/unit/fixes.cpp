@@ -4,17 +4,17 @@
 
 using namespace bsc;
 
+struct slice_base {
+  virtual char f() const { return 'S'; }
+  virtual ~slice_base() {}
+};
+
+struct slice : slice_base {
+  char f() const override { return 'T'; }
+};
+
 TEST_CASE("#15: calling reset then copying slices objects")
 {
-  struct slice_base {
-    virtual char f() const { return 'S'; }
-    virtual ~slice_base() {}
-  };
-
-  struct slice : slice_base {
-    char f() const override { return 'T'; }
-  };
-
   auto ptr = make_val<slice_base>();
   REQUIRE(ptr->f() == 'S');
 
