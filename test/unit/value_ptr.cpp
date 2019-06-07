@@ -366,3 +366,24 @@ TEST_CASE("can convert to unique_pointer")
     REQUIRE(count == 0);
   }
 }
+
+TEST_CASE("calling reset doesn't slice", "[15]")
+{
+  struct slice_base {
+    virtual char f() const { return 'S'; }
+    virtual ~slice_base() {}
+  };
+
+  struct slice : slice_base {
+    char f() const override { return 'T'; }
+  };
+
+  auto ptr = make_val<slice_base>();
+  REQUIRE(ptr->f() == 'S');
+
+  ptr.reset(new slice());
+  REQUIRE(ptr->f() == 'T');
+
+  auto p2 = ptr;
+  REQUIRE(p2->f() == 'T');
+}
