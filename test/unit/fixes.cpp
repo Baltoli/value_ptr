@@ -4,7 +4,7 @@
 
 using namespace bsc;
 
-TEST_CASE("#15: calling reset slices objects")
+TEST_CASE("#15: calling reset then copying slices objects")
 {
   struct slice_base {
     virtual char f() const { return 'S'; }
