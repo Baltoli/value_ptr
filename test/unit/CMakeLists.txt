@@ -1,4 +1,5 @@
 add_executable(valueptr-unit
+  fixes.cpp
   value_ptr.cpp
   main.cpp)
 

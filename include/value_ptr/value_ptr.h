@@ -202,18 +202,24 @@ public:
    * A call to reset while this object is managing an object will cause the
    * managed object to be destroyed. After calling, this object will manage ptr.
    */
-  void reset(T* ptr = nullptr) noexcept(std::is_nothrow_destructible<T>::value&&
-          std::is_nothrow_copy_constructible<T>::value)
+  template <typename U>
+  void reset(U* ptr) noexcept(std::is_nothrow_destructible<T>::value&&
+          std::is_nothrow_copy_constructible<U>::value)
   {
-    if (impl_) {
-      delete impl_;
-    }
+    delete impl_;
 
     if (ptr) {
-      impl_ = new pmr_model<T>(ptr);
+      impl_ = new pmr_model<U>(ptr);
     } else {
       impl_ = nullptr;
     }
+  }
+
+  void reset(std::nullptr_t = nullptr) noexcept(
+      std::is_nothrow_destructible<T>::value)
+  {
+    delete impl_;
+    impl_ = nullptr;
   }
 
   /**
