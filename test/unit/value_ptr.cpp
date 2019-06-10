@@ -128,6 +128,18 @@ TEST_CASE("value_ptr can be moved")
     REQUIRE(*v2 == 65);
     REQUIRE(!v);
   }
+
+  SECTION("self assignment works")
+  {
+    auto count = 0;
+
+    auto v = value_ptr<rc>(new rc(count));
+    REQUIRE(count == 1);
+
+    v = std::move(v);
+    REQUIRE(!!v);
+    REQUIRE(count == 1);
+  }
 }
 
 struct S {
