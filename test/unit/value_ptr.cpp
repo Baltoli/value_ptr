@@ -80,6 +80,17 @@ TEST_CASE("value_ptr can be copied")
     REQUIRE(count == 0);
   }
 
+  SECTION("self assignment works as expected")
+  {
+    auto count = 0;
+
+    auto v = value_ptr<rc>(new rc(count));
+    REQUIRE(count == 1);
+
+    v = v;
+    REQUIRE(count == 1);
+  }
+
   SECTION("stored pointers are different")
   {
     auto v = value_ptr<int>(new int(3));
