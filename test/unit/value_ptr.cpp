@@ -113,6 +113,7 @@ TEST_CASE("value_ptr can be moved")
 
       auto v2 = std::move(v);
       REQUIRE(count == 1);
+      REQUIRE(!v);
     }
 
     REQUIRE(count == 0);
@@ -125,6 +126,7 @@ TEST_CASE("value_ptr can be moved")
 
     auto v2(std::move(v));
     REQUIRE(*v2 == 65);
+    REQUIRE(!v);
   }
 }
 
