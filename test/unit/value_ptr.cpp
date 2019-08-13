@@ -80,6 +80,17 @@ TEST_CASE("value_ptr can be copied")
     REQUIRE(count == 0);
   }
 
+  SECTION("self assignment works as expected")
+  {
+    auto count = 0;
+
+    auto v = value_ptr<rc>(new rc(count));
+    REQUIRE(count == 1);
+
+    v = v;
+    REQUIRE(count == 1);
+  }
+
   SECTION("stored pointers are different")
   {
     auto v = value_ptr<int>(new int(3));
@@ -102,6 +113,7 @@ TEST_CASE("value_ptr can be moved")
 
       auto v2 = std::move(v);
       REQUIRE(count == 1);
+      REQUIRE(!v);
     }
 
     REQUIRE(count == 0);
@@ -114,6 +126,19 @@ TEST_CASE("value_ptr can be moved")
 
     auto v2(std::move(v));
     REQUIRE(*v2 == 65);
+    REQUIRE(!v);
+  }
+
+  SECTION("self assignment works")
+  {
+    auto count = 0;
+
+    auto v = value_ptr<rc>(new rc(count));
+    REQUIRE(count == 1);
+
+    v = std::move(v);
+    REQUIRE(!!v);
+    REQUIRE(count == 1);
   }
 }
 
