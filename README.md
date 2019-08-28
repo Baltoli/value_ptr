@@ -14,12 +14,40 @@ respected.
 ## Example
 
 ```c++
-value_ptr<int> v_ptr(new int(2));
-value_ptr<int> v_ptr2 = v_ptr;
+using namespace bsc;
+```
 
-assert(v_ptr != v_ptr2); // stored pointers are different
-*v_ptr2 = 3;
-assert(*v_ptr != *v_ptr2); // changes are independent
+The pointer can be used like other smart pointers:
+```c++
+value_ptr<int> v_ptr(new int(2));
+assert(*v_ptr == 2);
+```
+
+When a `value_ptr` is copied, the underlying object is copied. This behaviour is
+different to a `shared_ptr`, which copies the ref-counted *pointer*.
+```c++
+value_ptr<int> v_ptr(new int(2));
+auto v_ptr2 = v_ptr;
+assert(*v_ptr == *v_ptr2);
+
+*v_ptr = 3;
+assert(*v_ptr != *v_ptr2);
+```
+
+A forwarding convenience function is defined:
+```c++
+value_ptr<int> v_ptr = make_val<int>(54);
+```
+
+When a `value_ptr` is constructed with a derived class, it can be used
+polymorphically as the base class but will respect the copy constructor of the
+derived class:
+```c++
+struct S {};
+struct T : S {};
+
+auto v_ptr = value_ptr<S>(new T());
+auto v_ptr2 = v_ptr; // calls hypothetical T(const& T);
 ```
 
 ## Installation
