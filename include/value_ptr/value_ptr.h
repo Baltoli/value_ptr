@@ -366,6 +366,14 @@ auto make_val(Args&&... args) -> value_ptr<T>
 {
   return value_ptr<T>(new T(std::forward<Args>(args)...));
 }
+
+template <typename Base, typename Derived, typename... Args>
+auto make_derived_val(Args&&... args) -> value_ptr<Base>
+{
+  static_assert(
+  return value_ptr<Base>(new Derived(std::forward<Args>(args)...));
+}
+
 } // namespace bsc
 
 namespace std {
