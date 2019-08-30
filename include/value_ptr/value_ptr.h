@@ -129,8 +129,7 @@ public:
   {
   }
 
-  value_ptr<T>& operator=(value_ptr<T> other) noexcept(
-      std::is_nothrow_copy_constructible<T>::value)
+  value_ptr<T>& operator=(value_ptr<T> other) noexcept
   {
     using std::swap;
     swap(*this, other);
