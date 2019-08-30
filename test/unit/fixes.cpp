@@ -24,3 +24,12 @@ TEST_CASE("#15: calling reset then copying slices objects")
   auto p2 = ptr;
   REQUIRE(p2->f() == 'T');
 }
+
+TEST_CASE("#20: converting construction slices objects")
+{
+  auto from_p = value_ptr<slice_base>(new slice());
+  REQUIRE(from_p->f() == 'T');
+
+  /* auto to_p = value_ptr<slice>(from_p); */
+  /* REQUIRE(to_p->f() == 'T'); */
+}
