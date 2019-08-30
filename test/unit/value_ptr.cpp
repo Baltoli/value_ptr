@@ -365,6 +365,45 @@ TEST_CASE("make_val can be used")
   }
 }
 
+struct Base {
+  virtual ~Base() = default;
+  virtual int val() { return 0; }
+};
+
+struct Derived : Base {
+  Derived(int v)
+      : v_(v)
+  {
+  }
+
+  Derived(Derived const& od)
+      : v_(od.v_ + 1)
+  {
+  }
+
+  int val() override { return v_; }
+  int v_;
+};
+
+TEST_CASE("make_derived_val can be used")
+{
+  SECTION("values are propagated")
+  {
+    auto vp = make_derived_val<Base, Derived>(34);
+    REQUIRE(vp->val() == 34);
+  }
+
+  SECTION("derived copies are made")
+  {
+    auto vp = make_derived_val<Base, Derived>(22);
+    REQUIRE(vp->val() == 22);
+
+    auto vp2 = vp;
+    REQUIRE(vp->val() == 22);
+    REQUIRE(vp2->val() == 23);
+  }
+}
+
 TEST_CASE("can convert to unique_pointer")
 {
   SECTION("values are propagated")

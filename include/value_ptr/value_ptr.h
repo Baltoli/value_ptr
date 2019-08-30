@@ -362,10 +362,19 @@ void swap(value_ptr<T>& a, value_ptr<T>& b) noexcept
 }
 
 template <typename T, typename... Args>
-auto make_val(Args&&... args) -> value_ptr<T>
+value_ptr<T> make_val(Args&&... args)
 {
   return value_ptr<T>(new T(std::forward<Args>(args)...));
 }
+
+template <typename Base, typename Derived, typename... Args>
+typename std::enable_if<std::is_base_of<Base, Derived>::value,
+    value_ptr<Base>>::type
+make_derived_val(Args&&... args)
+{
+  return value_ptr<Base>(new Derived(std::forward<Args>(args)...));
+}
+
 } // namespace bsc
 
 namespace std {
@@ -377,4 +386,5 @@ struct hash<bsc::value_ptr<T>> {
     return std::hash<typename bsc::value_ptr<T>::pointer>()(ptr.get());
   }
 };
+
 } // namespace std
