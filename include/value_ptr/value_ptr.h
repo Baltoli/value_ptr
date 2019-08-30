@@ -98,7 +98,7 @@ public:
       typename = typename std::enable_if<
           std::is_convertible<typename value_ptr<U>::pointer, pointer>::value
           && !std::is_same<T, U>::value>::type>
-  value_ptr(value_ptr<U> other) noexcept(
+  value_ptr(value_ptr<U> const& other) noexcept(
       std::is_nothrow_copy_constructible<U>::value)
   {
     auto clone = other.impl_->clone();
